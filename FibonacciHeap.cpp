@@ -97,7 +97,7 @@ public:
         if (heap != nullptr) {
             Node<V, P>* loc_heap = heap;
             do {
-                Node<V, P>* n = loc_heap;
+                auto n = loc_heap;
                 loc_heap = loc_heap->right;
                 DeleteAll(n->child);
                 delete n;

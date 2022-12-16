@@ -7,8 +7,6 @@
 typedef long long ll;
 using namespace std;
 
-
-
 class Dijkstra_sAlgorithm {
 public:
     static vector<ll> NaiveDijkstra(EDGES_LISTS &edges_lists, int start_vertex) {
@@ -81,7 +79,7 @@ public:
         }
         for (int i = 1; i <= tops_count; ++i) {
             for (int j = 0; j < edges_lists[i].size(); ++j) {
-                auto* edge = new Edge<int, ll>(vertices[edges_lists[i][j].first], edges_lists[i][j].second);
+                auto edge = new Edge<int, ll>(vertices[edges_lists[i][j].first], edges_lists[i][j].second);
                 vertices[i]->AddNeighbours(edge);
             }
         }
@@ -90,16 +88,16 @@ public:
 
     static vector<ll> DijkstraFibHeap(vector<Node<int, ll>*> &vertices, int x) {
         vertices[x]->state = LABELED;
-        auto* heap = new FibonacciHeap<int, ll>();
+        auto heap = new FibonacciHeap<int, ll>();
         vertices[x]->key = 0;
         heap->Insert(vertices[x]);
 
         while (!heap->IsEmpty()) {
-            auto* v = heap->RemoveMinimum();
+            auto v = heap->RemoveMinimum();
             v->state = SCANNED;
             for(int i = 0; i < v->neighbours.size(); i++) {
-                auto* edge = v->neighbours[i];
-                auto* u = edge->end;
+                auto edge = v->neighbours[i];
+                auto u = edge->end;
                 ll NewKey = v->key + edge->length;
                 if (u->state == UNLABELED) {
                     u->state = LABELED;
