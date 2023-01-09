@@ -13,8 +13,7 @@ enum State {
 };
 
 template <class V, class P>
-class Edge {
-public:
+struct Edge {
     Node<V, P>* end;
     int length;
 
@@ -25,8 +24,7 @@ public:
 };
 
 template <class V, class P>
-class Node {
-public:
+struct Node {
     V value;
     P key;
     int degree;
@@ -56,52 +54,52 @@ public:
 
 template <class V, class P> class FibonacciHeap {
 private:
-    Node<V, P>* min;
+    Node<V, P>* min_;
 public:
     FibonacciHeap() {
-        min = Empty();
+        min_ = Empty();
     }
 
     ~FibonacciHeap() {
-        DeleteAll(min);
+        DeleteAll(min_);
     }
 
     void Insert(Node<V, P>* elem) {
-        min = Merge(min, elem);
+        min_ = Merge(min_, elem);
     }
 
     void Merge(FibonacciHeap& other) {
-        min = Merge(min, other.min);
-        other.min = Empty();
+        min_ = Merge(min_, other.min_);
+        other.min_ = Empty();
     }
 
     bool IsEmpty() {
-        return min == nullptr;
+        return min_ == nullptr;
     }
 
     V GetMin() {
-        return min->value;
+        return min_->value;
     }
 
     Node<V, P>* RemoveMinimum() {
-        Node<V, P>* old_min = min;
-        min = RemoveMinimum(min);
+        Node<V, P>* old_min = min_;
+        min_ = RemoveMinimum(min_);
         return old_min;
     }
 
-    void DecreaseKey(P key, Node<V, P>* elem) {
-        min = DecreaseKey(min, elem, key);
+    void DecreaseKey(P key, Node<V, P>* element) {
+        min_ = DecreaseKey(min_, element, key);
     }
 
     void DeleteAll(Node<V, P>* heap) {
         if (heap != nullptr) {
-            Node<V, P>* loc_heap = heap;
+            Node<V, P>* local_heap = heap;
             do {
-                auto n = loc_heap;
-                loc_heap = loc_heap->right;
+                auto n = local_heap;
+                local_heap = local_heap->right;
                 DeleteAll(n->child);
                 delete n;
-            } while (loc_heap != heap);
+            } while (local_heap != heap);
         }
     }
 
@@ -110,20 +108,20 @@ private:
         return nullptr;
     }
 
-    Node<V, P>* Merge(Node<V, P>* first, Node<V, P>* second) {
-        if (first == nullptr)
-            return second;
-        if (second == nullptr)
-            return first;
-        if (first->key > second->key)
-            swap(first, second);
-        Node<V, P>* A = first->right;
-        Node<V, P>* B = second->left;
-        first->right = second;
-        second->left = first;
-        A->left = B;
-        B->right = A;
-        return first;
+    Node<V, P>* Merge(Node<V, P>* first_heap, Node<V, P>* second_heap) {
+        if (first_heap == nullptr)
+            return second_heap;
+        if (second_heap == nullptr)
+            return first_heap;
+        if (first_heap->key > second_heap->key)
+            swap(first_heap, second_heap);
+        Node<V, P>* a = first_heap->right;
+        Node<V, P>* b = second_heap->left;
+        first_heap->right = second_heap;
+        second_heap->left = first_heap;
+        a->left = b;
+        b->right = a;
+        return first_heap;
     }
 
     void AddChild(Node<V, P>* parent, Node<V, P>* child) {
@@ -133,15 +131,15 @@ private:
         parent->child = Merge(parent->child, child);
     }
 
-    void UnMarkAll(Node<V, P>* elem) {
-        if (elem == nullptr)
+    void UnMarkAll(Node<V, P>* element) {
+        if (element == nullptr)
             return;
-        Node<V, P>* loc_elem = elem;
+        Node<V, P>* local_element = element;
         do {
-            loc_elem->mark = false;
-            loc_elem->parent = nullptr;
-            loc_elem = loc_elem->right;
-        } while (loc_elem != elem);
+            local_element->mark = false;
+            local_element->parent = nullptr;
+            local_element = local_element->right;
+        } while (local_element != element);
     }
 
 
@@ -207,38 +205,38 @@ private:
         return heap;
     }
 
-    Node<V, P>* Cut(Node<V, P>* heap, Node<V, P>* elem) {
-        if (elem->right == elem)
-            elem->parent->child = nullptr;
+    Node<V, P>* Cut(Node<V, P>* heap, Node<V, P>* element) {
+        if (element->right == element)
+            element->parent->child = nullptr;
         else {
-            elem->right->left = elem->left;
-            elem->left->right = elem->right;
-            elem->parent->child = elem->right;
+            element->right->left = element->left;
+            element->left->right = element->right;
+            element->parent->child = element->right;
         }
-        elem->right = elem->left = elem;
-        elem->mark  = false;
-        return Merge(heap, elem);
+        element->right = element->left = element;
+        element->mark  = false;
+        return Merge(heap, element);
     }
 
-    Node<V, P>* DecreaseKey(Node<V, P>* heap, Node<V, P>* n, int key) {
-        n->key = key;
-        if (n->parent) {
-            if (n->key < n->parent->key) {
-                heap = Cut(heap, n);
-                auto* parent = n->parent;
-                n->parent = nullptr;
+    Node<V, P>* DecreaseKey(Node<V, P>* heap, Node<V, P>* element, int key) {
+        element->key = key;
+        if (element->parent) {
+            if (element->key < element->parent->key) {
+                heap = Cut(heap, element);
+                auto* parent = element->parent;
+                element->parent = nullptr;
                 while (parent != nullptr && parent->mark) {
                     heap = Cut(heap, parent);
-                    n = parent;
-                    parent = n->parent;
-                    n->parent = nullptr;
+                    element = parent;
+                    parent = element->parent;
+                    element->parent = nullptr;
                 }
                 if (parent != nullptr && parent->parent != nullptr)
                     parent->mark = true;
             }
         }
-        else if (n->key < heap->key)
-            heap = n;
+        else if (element->key < heap->key)
+            heap = element;
         return heap;
     }
 };

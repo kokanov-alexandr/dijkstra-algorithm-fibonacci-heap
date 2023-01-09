@@ -2,21 +2,21 @@
 #include <iostream>
 #include <string>
 #include <random>
-#include <ctime>
 #include <chrono>
 
-#include "Dijkstra-sAlgorithm.cpp"
-#include "GeneratorTests.cpp"
+#include "dijkstra-s_algorithm.cpp"
+#include "generator_tests.cpp"
 
 typedef long long ll;
 using namespace std;
 using namespace std::chrono;
 
-const ll CORRECTNESS_TESTS = 15;
-const ll COUNT_TESTS = 30;
-ll CORRECT_TESTS = 0;
-ll FAILED_TESTS = 0;
-
+const int kMillion = 1e6;
+const ll kCountMadeCorrectnessTests = 15;
+const ll kCountCorrectnessTests = 30;
+const ll kCountTimeTests = 10;
+ll CorrectTests = 0;
+ll FailedTests = 0;
 
 bool CheckAnswer(const vector<ll>& distance, const vector<ll>& answers) {
     for (int i = 1; i < answers.size(); ++i) {
@@ -28,22 +28,22 @@ bool CheckAnswer(const vector<ll>& distance, const vector<ll>& answers) {
 }
 
 void RunTests() {
-    vector<int> count_elem_arr;
+    vector<int> count_elements_array;
     for (int i = 2; i <= 4; ++i) {
         for (int j = 2; j <= 10; j += 2) {
-            count_elem_arr.push_back(pow(10, i) * j);
+            count_elements_array.push_back((int)pow(10, i) * j);
         }
     }
 
-    for (int test_num = 1; test_num <= COUNT_TESTS; ++test_num) {
+    for (int test_num = 1; test_num <= kCountCorrectnessTests; ++test_num) {
         string in_file_name = "../Tests/in" + to_string(test_num) + ".txt";
         string ans_file_name = "../Tests/ans" + to_string(test_num) + ".txt";
         string out_file_name = "../Tests/output.txt";
-        int count_vert, count_edges, first, second, length, start_vertex;
+        int count_vertex, count_edges, first, second, length, start_vertex;
 
-        if (test_num > CORRECTNESS_TESTS) {
+        if (test_num > kCountMadeCorrectnessTests) {
             in_file_name = "../Tests/input.txt";
-            int count = count_elem_arr[test_num - CORRECTNESS_TESTS - 1];
+            int count = count_elements_array[test_num - kCountMadeCorrectnessTests - 1];
             auto graph = GenerateTest(count, count * 3,  start_vertex, false);
             ofstream output(in_file_name);
             for (auto s : graph) {
@@ -56,18 +56,19 @@ void RunTests() {
         ifstream answer(ans_file_name);
         ofstream output(out_file_name);
 
-        input >> count_vert >> count_edges >> start_vertex;
-        vector<ll> answers(count_vert + 1, 0);
-        EDGES_LISTS edges_lists(count_vert + 1, vector<pair<int, int>>());
+        input >> count_vertex >> count_edges >> start_vertex;
+        vector<ll> answers(count_vertex + 1, 0);
+        EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
 
         for (int i = 0; i < count_edges; ++i) {
             input >> first >> second >> length;
             edges_lists[first].push_back({second, length});
         }
-        auto node_lists =  Dijkstra_sAlgorithm::IntToNode(edges_lists);
-        auto start1 = high_resolution_clock::now();
-        auto distance = Dijkstra_sAlgorithm::DijkstraFibHeap(node_lists, start_vertex);
-        auto stop1 = high_resolution_clock::now();
+
+        auto node_lists =  DijkstraAlgorithm::IntToNode(edges_lists);
+        auto start = high_resolution_clock::now();
+        auto distance = DijkstraAlgorithm::DijkstraFibHeap(node_lists, start_vertex);
+        auto stop = high_resolution_clock::now();
 
         for (auto node_list : node_lists) {
             delete node_list;
@@ -76,18 +77,19 @@ void RunTests() {
         for (int i = 1; i < distance.size(); ++i) {
             output << distance[i] << " ";
         }
+
         for (int i = 1; i < answers.size(); ++i) {
             answer >> answers[i];
         }
 
         cout << "TEST " << test_num << ": ";
         if (CheckAnswer(distance, answers)) {
-            CORRECT_TESTS++;
+            CorrectTests++;
             cout << "OK. ";
-            cout << "TIME: "<< duration_cast<microseconds>(stop1 - start1).count() / 1e6 << " sec" << endl;
+            cout << "TIME: " << (double)duration_cast<microseconds>(stop - start).count() / kMillion << " sec" << endl;
         }
         else {
-            FAILED_TESTS++;
+            FailedTests++;
             cout << "ERROR." << endl;
         }
 
@@ -95,92 +97,85 @@ void RunTests() {
         answer.close();
         output.close();
     }
-    cout << "Correct tests: " << CORRECT_TESTS << endl;
-    cout << "Failed tests: " << FAILED_TESTS << endl;
+    cout << "Correct tests: " << CorrectTests << endl;
+    cout << "Failed tests: " << FailedTests << endl;
 
 }
-
 
 double GetAverage(vector<double> &operations_time) {
     double average = 0;
     for (double elem: operations_time)
         average += elem;
-
-    return average /= (double)operations_time.size();
+    return average / (double)operations_time.size();
 }
 
-void TimeComparison() {
-    ofstream count_elems("../TestsInfo/count_elements.txt");
-    ofstream epq_dij_t("../TestsInfo/embedded_priority_queue_dij.txt");
-    ofstream fib_heap_dij_t("../TestsInfo/fib_heap_dij.txt");
-    ofstream naive_dij_t("../TestsInfo/naive_implement_dij.txt");
 
+void TimeComparison() {
+    ofstream count_elements_f("../TestsInfo/count_elements_f.txt");
+    ofstream embedded_queue_operations_time_f("../TestsInfo/embedded_priority_queue_dij.txt");
+    ofstream fib_heap_operations_time_f("../TestsInfo/fib_heap_dij.txt");
+    ofstream naive_realization_operations_time_f("../TestsInfo/naive_implement_dij.txt");
 
     cout << "Time comparison tests:" << endl;
-    vector<int> count_elems_arr;
-    for (int i = 1; i <= 10; ++i) {
-        count_elems_arr.push_back((int)pow(10, 6) * i);
-    }
 
+    for (int i = 10; i <= kCountTimeTests; ++i) {
 
-    for (int i = 0; i < count_elems_arr.size(); ++i) {
         int start_vertex;
-        vector<double> operations_time;
-        vector<double> operations_time2;
-        vector<double> operations_time3;
-        int count_elem = count_elems_arr[i];
-        count_elems << count_elem << endl;
-        int as = 0;
-        while (as < 10) {
-            as++;
+        vector<double> fib_heap_operations_time;
+        vector<double> naive_realization_operations_time;
+        vector<double> embedded_queue_operations_time;
 
-            auto graph = GenerateTest(count_elem, count_elem * 3,  start_vertex, true);
-            EDGES_LISTS edges_lists(count_elem + 1, vector<pair<int, int>>());
+        int count_elements = (int)pow(10, 6) * i;
+        count_elements_f << count_elements << endl;
 
-            for (int i = 1; i <= count_elem; ++i) {
-                edges_lists[graph[i].head].push_back({graph[i].head, graph[i].length});
+        int iter = 0;
+        while (iter < 10) {
+            auto graph = GenerateTest(count_elements, count_elements * 3, start_vertex, true);
+            EDGES_LISTS edges_lists(count_elements + 1, vector<pair<int, int>>());
+
+            for (int j = 1; j <= count_elements; ++j) {
+                edges_lists[graph[j].head].push_back({graph[j].head, graph[j].length});
             }
 
-            auto node_lists =  Dijkstra_sAlgorithm::IntToNode(edges_lists);
-            auto start1 = high_resolution_clock::now();
-            auto distance = Dijkstra_sAlgorithm::DijkstraFibHeap(node_lists, start_vertex);
-            auto stop1 = high_resolution_clock::now();
+            auto node_lists =  DijkstraAlgorithm::IntToNode(edges_lists);
+            auto start_1 = high_resolution_clock::now();
+            auto distance = DijkstraAlgorithm::DijkstraFibHeap(node_lists, start_vertex);
+            auto stop_1 = high_resolution_clock::now();
+            auto execution_time = duration_cast<microseconds>(stop_1 - start_1).count();
+            fib_heap_operations_time.push_back(execution_time);
+
             for (auto node_list : node_lists) {
                 delete node_list;
             }
-            auto execution_time = duration_cast<microseconds>(stop1 - start1).count();
-            operations_time.push_back(execution_time);
-            cout << execution_time << endl;
 
-            auto start2 = high_resolution_clock::now();
-            distance = Dijkstra_sAlgorithm::NaiveDijkstra(edges_lists, start_vertex);
-            auto stop2 = high_resolution_clock::now();
-            execution_time = duration_cast<microseconds>(stop2 - start2).count();
-            operations_time2.push_back(execution_time);
+            auto start_2 = high_resolution_clock::now();
+            distance = DijkstraAlgorithm::NaiveDijkstra(edges_lists, start_vertex);
+            auto stop_2 = high_resolution_clock::now();
+            execution_time = duration_cast<microseconds>(stop_2 - start_2).count();
+            naive_realization_operations_time.push_back(execution_time);
 
-            auto start3 = high_resolution_clock::now();
-            distance = Dijkstra_sAlgorithm::DijkstraPriorityQueue(edges_lists, start_vertex);
-            auto stop3 = high_resolution_clock::now();
-            execution_time = duration_cast<microseconds>(stop3 - start3).count();
-            operations_time3.push_back(execution_time);
+            auto start_3 = high_resolution_clock::now();
+            distance = DijkstraAlgorithm::DijkstraPriorityQueue(edges_lists, start_vertex);
+            auto stop_3 = high_resolution_clock::now();
+            execution_time = duration_cast<microseconds>(stop_3 - start_3).count();
+            embedded_queue_operations_time.push_back(execution_time);
 
+            iter++;
         }
 
-        fib_heap_dij_t << GetAverage(operations_time) / 1e6 << endl;
-        naive_dij_t << GetAverage(operations_time2) / 1e6 << endl;
-        epq_dij_t << GetAverage(operations_time3) / 1e6 << endl;
+        fib_heap_operations_time_f << GetAverage(fib_heap_operations_time) / kMillion << endl;
+        naive_realization_operations_time_f << GetAverage(naive_realization_operations_time) / kMillion << endl;
+        embedded_queue_operations_time_f << GetAverage(embedded_queue_operations_time) / kMillion << endl;
 
-
-
+        cout << "test " << i << " passed\n";
     }
-    count_elems.close();
-    epq_dij_t.close();
-    fib_heap_dij_t.close();
-    naive_dij_t.close();
+    count_elements_f.close();
+    embedded_queue_operations_time_f.close();
+    fib_heap_operations_time_f.close();
+    naive_realization_operations_time_f.close();
 }
 
 int main() {
-    RunTests();
-
+    TimeComparison();
     return 0;
 }

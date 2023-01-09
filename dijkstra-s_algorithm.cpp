@@ -1,13 +1,14 @@
 #include <vector>
 #include <queue>
 #include <string>
-#include "FibonacciHeap.cpp"
+#include "fibonacci_heap.cpp"
 #define INF LONG_LONG_MAX
 #define EDGES_LISTS vector<vector<pair<int, int>>>
 typedef long long ll;
 using namespace std;
 
-class Dijkstra_sAlgorithm {
+
+class DijkstraAlgorithm {
 public:
     static vector<ll> NaiveDijkstra(EDGES_LISTS &edges_lists, int start_vertex) {
         unsigned long long tops_count = edges_lists.size() - 1;
@@ -29,9 +30,9 @@ public:
                 break;
             used[v] = true;
             for (auto neigh : edges_lists[v]) {
-                ll new_dist = distance[v] + neigh.second;
-                if (new_dist < distance[neigh.first])
-                    distance[neigh.first] = new_dist;
+                ll new_distance = distance[v] + neigh.second;
+                if (new_distance < distance[neigh.first])
+                    distance[neigh.first] = new_distance;
             }
         }
         for (int i = 1; i <= tops_count; ++i) {

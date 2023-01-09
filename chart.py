@@ -17,7 +17,9 @@ for i in range(1, COUNTER_TESTS + 1):
     embedded_pq_t.append(float(embedded_pq.readline().split()[0]))
     fib_heap_t.append(float(fib_heap.readline().split()[0]))
 
-plt.xlabel("Размер данных")
+plt.grid(color='black', linestyle='-', linewidth=0.5)
+
+plt.xlabel("Количество рёбер")
 plt.ylabel("Время работы")
 plt.plot(elems, naive_t, label='Наивная реализация', color="black", marker="o")
 plt.plot(elems, embedded_pq_t, label='Встроенная приоритетная очередь', color="blue", marker="o")
