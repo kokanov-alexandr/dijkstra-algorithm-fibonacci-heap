@@ -1,9 +1,11 @@
 #include <vector>
 #include <queue>
 #include <string>
-#include "fibonacci_heap.cpp"
+#include "fibonacci_heap.h"
+
 #define INF LONG_LONG_MAX
 #define EDGES_LISTS vector<vector<pair<int, int>>>
+
 typedef long long ll;
 using namespace std;
 
