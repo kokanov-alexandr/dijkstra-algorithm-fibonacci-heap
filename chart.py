@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-COUNTER_TESTS = 9
+COUNTER_TESTS = 6
    
 naive = open("TestsInfo/naive_implement_dij.txt", 'r', encoding="utf-8")
 embedded_pq = open("TestsInfo/embedded_priority_queue_dij.txt", 'r', encoding="utf-8")
@@ -17,8 +17,7 @@ for i in range(1, COUNTER_TESTS + 1):
     embedded_pq_t.append(float(embedded_pq.readline().split()[0]))
     fib_heap_t.append(float(fib_heap.readline().split()[0]))
 
-plt.grid(color='black', linestyle='-', linewidth=0.5)
-
+plt.xscale('log')
 plt.xlabel("Количество рёбер")
 plt.ylabel("Время работы")
 plt.plot(elems, naive_t, label='Наивная реализация', color="black", marker="o")
