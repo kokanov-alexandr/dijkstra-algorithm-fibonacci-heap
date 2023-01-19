@@ -1,0 +1,4 @@
+insert 6
+insert 9
+decrease_key 5 9
+remove_minimum

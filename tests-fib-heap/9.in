@@ -1,0 +1,15 @@
+insert 34
+insert 12
+insert 54
+insert 8
+insert 7
+insert 895
+decrease_key 10 12
+decrease_key 23 34
+remove_minimum
+remove_minimum
+remove_minimum
+insert 87
+insert 1
+remove_minimum
+remove_minimum

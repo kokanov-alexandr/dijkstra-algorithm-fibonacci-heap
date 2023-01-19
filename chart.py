@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
-COUNTER_TESTS = 6
+COUNTER_TESTS = 10
    
-naive = open("TestsInfo/naive_implement_dij.txt", 'r', encoding="utf-8")
-embedded_pq = open("TestsInfo/embedded_priority_queue_dij.txt", 'r', encoding="utf-8")
-fib_heap = open("TestsInfo/fib_heap_dij.txt", 'r', encoding="utf-8")
-count_elems = open("TestsInfo/count_elements.txt", 'r', encoding="utf-8")
+naive = open("tests-Info/naive_implement_dij.txt", 'r', encoding="utf-8")
+embedded_pq = open("tests-Info/embedded_priority_queue_dij.txt", 'r', encoding="utf-8")
+fib_heap = open("tests-Info/fib_heap_dij.txt", 'r', encoding="utf-8")
+count_elems = open("tests-Info/count_elements.txt", 'r', encoding="utf-8")
 
 elems = []
 naive_t = []

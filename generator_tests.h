@@ -1,6 +1,7 @@
 #include <random>
 #include <vector>
-#define EDGES_LISTS vector<vector<pair<int, int>>>
+using namespace std;
+using EDGES_LISTS = vector<vector<pair<int, int>>>;
 
 using namespace std;
 
@@ -19,10 +20,6 @@ int GetRandomNumber(int left, int right) {
     return left + rand() % (right - left + 1);
 }
 
-vector<ll> GenerateAnswer(EDGES_LISTS edges_lists, int start_vertex) {
-    auto node_lists =  DijkstraAlgorithm::IntToNode(edges_lists);
-    return DijkstraAlgorithm::DijkstraFibHeap(node_lists, start_vertex);
-}
 
 vector<GraphStr> GenerateRandomTest(int count_vertex, int count_edges, int &start_vertex) {
     srand(time(nullptr));
@@ -34,11 +31,10 @@ vector<GraphStr> GenerateRandomTest(int count_vertex, int count_edges, int &star
     }
     return graph;
 }
-
 //  Полный граф
 pair<EDGES_LISTS, int> GenerateTest1() {
     srand(1);
-    int count_vertex = 5;
+    int count_vertex = 1e2;
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
     for (int i = 1; i <= count_vertex; ++i) {
         for (int j = 1; j <= count_vertex; ++j) {
@@ -116,7 +112,7 @@ pair<EDGES_LISTS, int> GenerateTest6() {
 //  Убывающие веса
 pair<EDGES_LISTS, int> GenerateTest7() {
     srand(6);
-    int count_vertex = 1e5, count_edges = 4, w = count_edges + 1;
+    int count_vertex = 1e6, count_edges = 4, w = count_edges + 1;
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
     for (int i = 1; i < count_edges; ++i) {
         edges_lists[GetRandomNumber(1, count_vertex)].push_back({GetRandomNumber(1, count_vertex), w--});
@@ -135,5 +131,3 @@ pair<EDGES_LISTS, int> GenerateTest8() {
     }
     return {edges_lists, 2};
 }
-
-

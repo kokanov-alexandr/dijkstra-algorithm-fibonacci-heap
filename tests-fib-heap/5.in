@@ -1,0 +1,6 @@
+insert -4
+insert 1212
+insert 534
+remove_minimum
+remove_minimum
+remove_minimum
