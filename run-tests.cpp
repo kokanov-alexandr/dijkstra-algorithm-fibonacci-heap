@@ -13,13 +13,30 @@ using namespace std::chrono;
 
 const int kMillion = 1e6;
 const int kCountMadeCorrectnessDijTests = 23;
-const int kCountAllCorrectnessDijTests = 31;
+const int kCountGenCorrectnessDijTests = 8;
 const int kCountCorrectnessFibHeapTests = 10;
 const int kCountTimeTests = 10;
 int CorrectDijkstraTests = 0;
 int FailedDijkstraTests = 0;
 int CorrectFibHeapTests = 0;
 int FailedFibHeapTests = 0;
+int TestNumber = 0;
+
+bool CheckAnswer(const vector<int> &our_answers, const vector<int> &right_answers) {
+    for (int i = 1; i < right_answers.size(); ++i) {
+        if (our_answers[i] != right_answers[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+double GetAverage(vector<double> &operations_time) {
+    double average = 0;
+    for (double elem: operations_time)
+        average += elem;
+    return average / (double)operations_time.size();
+}
 
 /*
     Формат тестов:
@@ -34,19 +51,15 @@ int FailedFibHeapTests = 0;
 
 void RunFibHeapTests() {
     cout << "Run Fibonacci Heap tests\n";
-    string ans_file_name, out_file_name, in_file_name;
-    for (int i = 1; i <= kCountCorrectnessFibHeapTests; ++i) {
-        in_file_name = "../tests-fib-heap/" + to_string(i) + ".in";
-        ans_file_name = "../tests-fib-heap/" + to_string(i) + ".ans";
-        out_file_name = "../tests-fib-heap/output.txt";
-
-        ifstream answer(ans_file_name);
-        ofstream output(out_file_name);
-        ifstream input(in_file_name);
+    for (TestNumber = 1; TestNumber <= kCountCorrectnessFibHeapTests; ++TestNumber) {
+        ifstream input("../tests-fib-heap/" + to_string(TestNumber) + ".in");
+        ifstream answer("../tests-fib-heap/" + to_string(TestNumber) + ".ans");
 
         auto fib_heap = new FibonacciHeap<int>();
         string action;
         int value, key, new_key;
+        vector<int> heap_answers = vector<int>();
+        vector<int> right_answers = vector<int>();
 
         while (input >> action) {
             if (action == "insert") {
@@ -54,7 +67,7 @@ void RunFibHeapTests() {
                 fib_heap->Insert(key);
             }
             else if (action == "remove_minimum") {
-                output << fib_heap->RemoveMinimum()->key << " ";
+                 heap_answers.push_back(fib_heap->GetMinimum());
             }
             else if (action == "decrease_key") {
                 input >> new_key >> key;
@@ -63,20 +76,14 @@ void RunFibHeapTests() {
             }
         }
         input.close();
-        output.close();
-        ifstream output_2(out_file_name);
 
-        int a, b;
-        bool is_test_right = true;
-        while (answer >> b && output_2 >> a) {
-            if (a != b) {
-                FailedFibHeapTests++;
-                is_test_right = false;
-                break;
-            }
+        int a;
+        while (answer >> a) {
+            right_answers.push_back(a);
         }
-        cout << "Test " << i << ": ";
-        if (is_test_right) {
+
+        cout << "Test " << TestNumber << ": ";
+        if (CheckAnswer(right_answers, heap_answers)) {
             CorrectFibHeapTests++;
             cout << "ok.\n";
         }
@@ -84,20 +91,12 @@ void RunFibHeapTests() {
             cout << "error.\n";
         }
         answer.close();
-        output_2.close();
     }
     cout << "Correct tests: " << CorrectFibHeapTests << endl;
     cout << "Failed tests: " << FailedFibHeapTests << endl << endl;
 }
 
-bool CheckAnswer(const vector<int> &distance, const vector<int> &answers) {
-    for (int i = 1; i < distance.size(); ++i) {
-        if (answers[i] != distance[i]) {
-            return false;
-        }
-    }
-    return true;
-}
+
 
 /*
     Формат тестов:
@@ -105,149 +104,130 @@ bool CheckAnswer(const vector<int> &distance, const vector<int> &answers) {
     m рёбер: начало, конец, вес
 */
 
+void RunDijkstraTest(EDGES_LISTS edges_lists, int start_vertex, vector<int> answers) {
+    auto start = high_resolution_clock::now();
+    auto distance = Dijkstra<FibonacciHeap>(edges_lists, start_vertex);
+    auto stop = high_resolution_clock::now();
+
+    cout << "Test " << TestNumber << ": ";
+
+    if (CheckAnswer(distance, answers)) {
+        CorrectDijkstraTests++;
+        cout << "ok. ";
+        cout << "Time: " << (double)duration_cast<microseconds>(stop - start).count() / kMillion << " sec" << endl;
+    }
+    else {
+        FailedDijkstraTests++;
+        cout << "error." << endl;
+    }
+}
+
 void RunDijkstraTests() {
     cout << "Run Dijkstra tests\n";
-    pair<EDGES_LISTS, int> (*GeneratorTest[])() = {GenerateTest1, GenerateTest2, GenerateTest3, GenerateTest4,
-                                                   GenerateTest5, GenerateTest6, GenerateTest7, GenerateTest8};
+    pair<EDGES_LISTS, int> (*GeneratorTest[])() = {GenTestFullGraph, GenTestCycleGraph, GenTestTwoComponentsGraph,
+                                                   GenTestLineGraph, GenTestTree, GenTestIncWeightsGraph,
+                                                   GenTestDecWeightsGraph, GenTestSameWeightsGraph};
 
-    for (int test_number = 1; test_number <= kCountAllCorrectnessDijTests; ++test_number) {
-        int count_vertex, count_edges, first, second, length, start_vertex;
-        EDGES_LISTS edges_lists;
-        vector<int> answers;
+    int count_vertex, count_edges, first, second, length, start_vertex;
+    EDGES_LISTS edges_lists;
+    vector<int> answers;
 
-        string ans_file_name = "../tests-Dijkstra/" + to_string(test_number) + ".ans";
-        string out_file_name = "../tests-Dijkstra/output.txt";
-        ifstream answer(ans_file_name);
-        ofstream output(out_file_name);
-
-        if (test_number > kCountMadeCorrectnessDijTests) {
-            int count = test_number - kCountMadeCorrectnessDijTests - 1;
-            auto graph = GeneratorTest[count]();
-            edges_lists = graph.first;
-            start_vertex = graph.second;
-
-        }
-        else {
-            string in_file_name = "../tests-Dijkstra/" + to_string(test_number) + ".in";
-            ifstream input(in_file_name);
-            input >> count_vertex >> count_edges >> start_vertex;
-            edges_lists = EDGES_LISTS(count_vertex + 1, vector<pair<int, int>>());
-            for (int i = 0; i < count_edges; ++i) {
-                input >> first >> second >> length;
-                edges_lists[first].push_back({second, length});
-            }
-            input.close();
-        }
-
-        auto start = high_resolution_clock::now();
-        auto distance = Dijkstra<FibonacciHeap>(edges_lists, start_vertex);
-        auto stop = high_resolution_clock::now();
-
+    for (TestNumber = 1; TestNumber <= kCountMadeCorrectnessDijTests; ++TestNumber) {
+        ifstream input("../tests-Dijkstra/" + to_string(TestNumber) + ".in");
+        ifstream answer("../tests-Dijkstra/" + to_string(TestNumber) + ".ans");
+        input >> count_vertex >> count_edges >> start_vertex;
+        edges_lists = EDGES_LISTS(count_vertex + 1, vector<pair<int, int>>());
         answers = vector<int>(count_vertex + 1, 0);
 
-        for (int i = 1; i < distance.size(); ++i) {
-            output << distance[i] << " ";
+        for (int i = 0; i < count_edges; ++i) {
+            input >> first >> second >> length;
+            edges_lists[first].push_back({second, length});
         }
 
-        if (test_number > kCountMadeCorrectnessDijTests) {
-            answers = Dijkstra<PriorityQueue>(edges_lists, start_vertex);
-        }
-        else {
-            for (int i = 1; i < answers.size(); ++i) {
-                answer >> answers[i];
-            }
+        for (int i = 1; i < answers.size(); ++i) {
+            answer >> answers[i];
         }
 
-        cout << "Test " << test_number << ": ";
-
-        if (CheckAnswer(distance, answers)) {
-            CorrectDijkstraTests++;
-            cout << "ok. ";
-            cout << "Time: " << (double)duration_cast<microseconds>(stop - start).count() / kMillion << " sec" << endl;
-        }
-        else {
-            FailedDijkstraTests++;
-            cout << "error." << endl;
-        }
-
+        input.close();
         answer.close();
-        output.close();
+        RunDijkstraTest(edges_lists, start_vertex, answers);
+    }
+
+    for (TestNumber = kCountMadeCorrectnessDijTests; TestNumber < kCountGenCorrectnessDijTests + kCountMadeCorrectnessDijTests; ++TestNumber) {
+        auto graph = GeneratorTest[TestNumber - kCountMadeCorrectnessDijTests]();
+        edges_lists = graph.first;
+        start_vertex = graph.second;
+        answers = Dijkstra<PriorityQueue>(edges_lists, start_vertex);
+        RunDijkstraTest(edges_lists, start_vertex, answers);
+
     }
     cout << "Correct tests: " << CorrectDijkstraTests << endl;
     cout << "Failed tests: " << FailedDijkstraTests << endl;
 
 }
 
-double GetAverage(vector<double> &operations_time) {
-    double average = 0;
-    for (double elem: operations_time)
-        average += elem;
-    return average / (double)operations_time.size();
+template<template<class> class T>
+double GetTimeOperation(int count_vertex, int count_edges, int start_vertex) {
+    vector<double> operations_time;
+    T<pair<int, int>> my_struct;
+    int iter = 0;
+    while (iter < 5) {
+        auto graph = GenRandomTest(count_vertex, count_edges, start_vertex, iter * 2);
+        EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
+
+        for (int j = 1; j <= count_vertex; ++j) {
+            edges_lists[graph[j].head].push_back({graph[j].tail, graph[j].length});
+        }
+
+        auto start = high_resolution_clock::now();
+        auto distance = Dijkstra<T>(edges_lists, start_vertex);
+        auto stop = high_resolution_clock::now();
+        auto execution_time = duration_cast<microseconds>(stop - start).count();
+        operations_time.push_back(execution_time);
+        iter++;
+    }
+    return GetAverage(operations_time) / kMillion;
+
 }
 
 void TimeComparison() {
     ofstream count_elements_f("../tests-Info/count_elements.txt");
     ofstream embedded_queue_operations_time_f("../tests-Info/embedded_priority_queue_dij.txt");
     ofstream fib_heap_operations_time_f("../tests-Info/fib_heap_dij.txt");
-    ofstream naive_realization_operations_time_f("../tests-Info/naive_implement_dij.txt");
 
     cout << "Time comparison tests:" << endl;
 
-    for (int i = 1; i <= kCountTimeTests; ++i) {
+    for (TestNumber = 1; TestNumber <= kCountTimeTests; ++TestNumber) {
 
-        int start_vertex;
+        int start_vertex, count_vertex, count_edges;
         vector<double> fib_heap_operations_time;
         vector<double> naive_realization_operations_time;
         vector<double> embedded_queue_operations_time;
 
-        int count_elements = (int)pow(10, 5) * i;
-        count_elements_f << count_elements << endl;
+        count_vertex = (int)pow(10, 4) * TestNumber;
+        count_edges = count_vertex * 200;
+        count_elements_f << count_vertex << endl;
 
-        int iter = 0;
-        while (iter < 10) {
-            auto graph = GenerateRandomTest(count_elements, count_elements * 3, start_vertex);
-            EDGES_LISTS edges_lists(count_elements + 1, vector<pair<int, int>>());
-
-            for (int j = 1; j <= count_elements; ++j) {
-                edges_lists[graph[j].head].push_back({graph[j].tail, graph[j].length});
-            }
-
-            auto start_1 = high_resolution_clock::now();
-            auto distance = Dijkstra<FibonacciHeap>(edges_lists, start_vertex);
-            auto stop_1 = high_resolution_clock::now();
-            auto execution_time = duration_cast<microseconds>(stop_1 - start_1).count();
-            fib_heap_operations_time.push_back(execution_time);
+        double fib_heap_time = GetTimeOperation<FibonacciHeap>(count_vertex, count_edges,  start_vertex);
+        double priority_queue_time = GetTimeOperation<PriorityQueue>(count_vertex, count_edges, start_vertex);
+        double count_vertex_log = (int)log10(count_vertex);
+        double count_edges_log = (int)log10(count_edges);
+        fib_heap_operations_time_f << fib_heap_time << endl;
+        embedded_queue_operations_time_f << priority_queue_time << endl;
 
 
-            auto start_2 = high_resolution_clock::now();
-            distance = Dijkstra<VectorQueue>(edges_lists, start_vertex);
-            auto stop_2 = high_resolution_clock::now();
-            execution_time = duration_cast<microseconds>(stop_2 - start_2).count();
-            naive_realization_operations_time.push_back(execution_time);
-
-            auto start_3 = high_resolution_clock::now();
-            distance = Dijkstra<PriorityQueue>(edges_lists, start_vertex);
-            auto stop_3 = high_resolution_clock::now();
-            execution_time = duration_cast<microseconds>(stop_3 - start_3).count();
-            embedded_queue_operations_time.push_back(execution_time);
-
-            iter++;
-        }
-
-        fib_heap_operations_time_f << GetAverage(fib_heap_operations_time) / kMillion << endl;
-        naive_realization_operations_time_f << GetAverage(naive_realization_operations_time) / kMillion << endl;
-        embedded_queue_operations_time_f << GetAverage(embedded_queue_operations_time) / kMillion << endl;
-
-        cout << "test " << i << " passed\n";
+        cout << "Test " << TestNumber << ":\n";
+        cout << "n: " << count_vertex / pow(10, count_vertex_log) << "*10^" << count_vertex_log << " ";
+        cout << "m: " << count_edges/ pow(10, count_edges_log) << "*10^" << count_edges_log << endl;
+        cout << "Fib heap:       " << fib_heap_time << endl;
+        cout << "Priority Queue: " << priority_queue_time << endl;
     }
     count_elements_f.close();
     embedded_queue_operations_time_f.close();
     fib_heap_operations_time_f.close();
-    naive_realization_operations_time_f.close();
 }
 
 int main() {
-    RunFibHeapTests();
-    RunDijkstraTests();
+    TimeComparison();
     return 0;
 }

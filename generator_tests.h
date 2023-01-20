@@ -21,8 +21,8 @@ int GetRandomNumber(int left, int right) {
 }
 
 
-vector<GraphStr> GenerateRandomTest(int count_vertex, int count_edges, int &start_vertex) {
-    srand(time(nullptr));
+vector<GraphStr> GenRandomTest(int count_vertex, int count_edges, int &start_vertex, int seed) {
+    srand(seed);
     start_vertex = rand() % count_vertex + 1;
     vector<GraphStr> graph;
     graph.push_back(GraphStr(count_vertex, count_edges, start_vertex));
@@ -31,8 +31,8 @@ vector<GraphStr> GenerateRandomTest(int count_vertex, int count_edges, int &star
     }
     return graph;
 }
-//  Полный граф
-pair<EDGES_LISTS, int> GenerateTest1() {
+
+pair<EDGES_LISTS, int> GenTestFullGraph() {
     srand(1);
     int count_vertex = 1e2;
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
@@ -46,10 +46,10 @@ pair<EDGES_LISTS, int> GenerateTest1() {
     return {edges_lists, 1};
 }
 
-//  Цикл
-pair<EDGES_LISTS, int> GenerateTest2() {
+
+pair<EDGES_LISTS, int> GenTestCycleGraph() {
     srand(2);
-    int count_vertex = 1e1;
+    int count_vertex = 4;
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
     for (int i = 1; i < count_vertex; ++i) {
         edges_lists[i].push_back({i + 1, GetRandomNumber(1, 15000)});
@@ -58,8 +58,8 @@ pair<EDGES_LISTS, int> GenerateTest2() {
     return {edges_lists, 3};
 }
 
-//  Две компоненты связности
-pair<EDGES_LISTS, int> GenerateTest3() {
+
+pair<EDGES_LISTS, int> GenTestTwoComponentsGraph() {
     srand(3);
     int count_vertex = 1e5 * 2, count_edges = 1e5 * 3;
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
@@ -74,8 +74,7 @@ pair<EDGES_LISTS, int> GenerateTest3() {
     return {edges_lists, 1};
 }
 
-//  Линия
-pair<EDGES_LISTS, int> GenerateTest4() {
+pair<EDGES_LISTS, int> GenTestLineGraph() {
     srand(4);
     int count_vertex = 1e5 * 5;
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
@@ -85,8 +84,7 @@ pair<EDGES_LISTS, int> GenerateTest4() {
     return {edges_lists, 1};
 }
 
-//  Дерево
-pair<EDGES_LISTS, int> GenerateTest5() {
+pair<EDGES_LISTS, int> GenTestTree() {
     int tree_height = 18;
     srand(5);
     int count_vertex = pow(2, tree_height) - 1;
@@ -98,8 +96,7 @@ pair<EDGES_LISTS, int> GenerateTest5() {
     return {edges_lists, 1};
 }
 
-//  Возрастающие веса
-pair<EDGES_LISTS, int> GenerateTest6() {
+pair<EDGES_LISTS, int> GenTestIncWeightsGraph() {
     srand(6);
     int count_vertex = 1e5, count_edges = 1e5 * 3, w = 1;
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
@@ -109,8 +106,7 @@ pair<EDGES_LISTS, int> GenerateTest6() {
     return {edges_lists, 1};
 }
 
-//  Убывающие веса
-pair<EDGES_LISTS, int> GenerateTest7() {
+pair<EDGES_LISTS, int> GenTestDecWeightsGraph() {
     srand(6);
     int count_vertex = 1e6, count_edges = 4, w = count_edges + 1;
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
@@ -120,9 +116,7 @@ pair<EDGES_LISTS, int> GenerateTest7() {
     return {edges_lists, 1};
 }
 
-
-//  Все веса по 1e4
-pair<EDGES_LISTS, int> GenerateTest8() {
+pair<EDGES_LISTS, int> GenTestSameWeightsGraph() {
     srand(7);
     int count_vertex = 1e5, count_edges = 1e5 * 3;
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());

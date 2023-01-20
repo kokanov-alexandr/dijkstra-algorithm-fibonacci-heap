@@ -19,11 +19,8 @@
 using EDGES_LISTS = vector<vector<pair<int, int>>>;
 
 template <class T>
-using minPQ = priority_queue<T, vector<T>, greater<T>>;
-
-template <class T>
 struct PriorityQueue {
-    minPQ<T> my_queue;
+    priority_queue<T, vector<T>, greater<T>> my_queue;
     void Insert(T t) {
         my_queue.push(t);
     }
@@ -41,26 +38,6 @@ struct PriorityQueue {
     }
 };
 
-
-template <class T>
-struct VectorQueue {
-    vector<T> my_vector;
-    void Insert(T t) {
-        my_vector.push_back(t);
-    }
-    T RemoveMinimum() {
-        auto m = min_element(my_vector.begin(), my_vector.end());
-        auto v = *m;
-        my_vector.erase(m);
-        return v;
-    }
-    bool IsEmpty() {
-        return my_vector.size() == 0;
-    }
-    T GetMinimum() {
-        return *min_element(my_vector.begin(), my_vector.end());
-    }
-};
 
 
 template<template<class> class T>

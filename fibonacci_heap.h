@@ -60,7 +60,7 @@ public:
 
     bool IsEmpty();
 
-    Node<T>* RemoveMinimum();
+    void RemoveMinimum();
 
     void DecreaseKey(Node<T>* n, int value);
 
@@ -131,10 +131,10 @@ bool FibonacciHeap<T>::IsEmpty() {
 }
 
 template <class T>
-Node<T>* FibonacciHeap<T>::RemoveMinimum() {
-    Node<T>* old = min_;
+void FibonacciHeap<T>::RemoveMinimum() {
+    Node<T>* last_min = min_;
     min_ = RemoveMinimum(min_);
-    return old;
+    delete last_min;
 }
 
 template <class T>
