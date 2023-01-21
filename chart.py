@@ -16,7 +16,7 @@ for i in range(1, COUNTER_TESTS + 1):
 
 plt.xscale('log')
 plt.xlabel("Количество рёбер")
-plt.ylabel("Время работы")
+plt.ylabel("Время работы (сек)")
 plt.plot(elems, embedded_pq_t, label='Встроенная приоритетная очередь', color="blue", marker="o")
 plt.plot(elems, fib_heap_t, label='Фибоначчиева куча', color="red", marker="o")
 plt.title("Алгоритм Дейкстры")

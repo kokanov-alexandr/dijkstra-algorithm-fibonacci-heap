@@ -1,10 +1,8 @@
 /*
  * Этот заголовочный файл содержит библиотеку C++ с реализацией алгоритма Дейкстры
- * с использование 3-ч различных структур даннх: vector c++, priority_queue c++,
- * FibonacciHeap из заголовочного файла "fibonacci_heap.h"
+ * с использование двух структур даннх: priority_queue c++ и FibonacciHeap из заголовочного файла "fibonacci_heap.h"
  *
  * Запуск алгоритма:
- * Dijkstra<VectorQueue>(edges_lists, start_vertex);
  * Dijkstra<PriorityQueue>(edges_lists, start_vertex);
  * Dijkstra<FibonacciHeap>(edges_lists, start_vertex);
 */
@@ -15,7 +13,6 @@
 #include "fibonacci_heap.h"
 
 #define INF INT_MAX
-
 using EDGES_LISTS = vector<vector<pair<int, int>>>;
 
 template <class T>
@@ -37,8 +34,6 @@ struct PriorityQueue {
         return my_queue.top();
     }
 };
-
-
 
 template<template<class> class T>
 vector<int> Dijkstra(EDGES_LISTS &edges_lists, int start_vertex) {

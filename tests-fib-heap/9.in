@@ -6,10 +6,15 @@ insert 7
 insert 895
 decrease_key 10 12
 decrease_key 23 34
+get_minimum
 remove_minimum
+get_minimum
 remove_minimum
+get_minimum
 remove_minimum
 insert 87
 insert 1
+get_minimum
 remove_minimum
+get_minimum
 remove_minimum

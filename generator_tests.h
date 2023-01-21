@@ -1,127 +1,121 @@
 #include <random>
 #include <vector>
+#include <tuple>
+
 using namespace std;
 using EDGES_LISTS = vector<vector<pair<int, int>>>;
+using test_tuple = tuple<EDGES_LISTS, int, vector<int>>;
 
-using namespace std;
-
-struct GraphStr {
-    int head;
-    int tail;
-    int length;
-    GraphStr(int head, int tail, int length) {
-        this->head = head;
-        this->tail = tail;
-        this->length = length;
-    }
-};
-
-int GetRandomNumber(int left, int right) {
+int kMaxWeight = 1000;
+int GetRandomNum(int left, int right) {
     return left + rand() % (right - left + 1);
 }
 
-
-vector<GraphStr> GenRandomTest(int count_vertex, int count_edges, int &start_vertex, int seed) {
-    srand(seed);
-    start_vertex = rand() % count_vertex + 1;
-    vector<GraphStr> graph;
-    graph.push_back(GraphStr(count_vertex, count_edges, start_vertex));
-    for (int i = 1; i <= count_edges; ++i) {
-        graph.push_back({GetRandomNumber(1, count_vertex), GetRandomNumber(1, count_vertex), 1});
+test_tuple GenTestRandomGraph(int count_vertex) {
+    EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
+    for (int i = 1; i < count_vertex; ++i) {
+        edges_lists[i].push_back({i + 1, GetRandomNum(1, 15000)});
     }
-    return graph;
+    edges_lists[count_vertex].push_back({1, GetRandomNum(1, 15000)});
+
+    return {edges_lists, 1, Dijkstra<PriorityQueue>(edges_lists, 1)};
 }
 
-pair<EDGES_LISTS, int> GenTestFullGraph() {
-    srand(1);
-    int count_vertex = 1e2;
+test_tuple GenTestFullGraph(int count_vertex) {
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
     for (int i = 1; i <= count_vertex; ++i) {
         for (int j = 1; j <= count_vertex; ++j) {
             if (i != j) {
-                edges_lists[i].push_back({j, GetRandomNumber(1, 100)});
+                edges_lists[i].push_back({j, GetRandomNum(1, kMaxWeight)});
             }
         }
     }
-    return {edges_lists, 1};
+    return {edges_lists, 1, Dijkstra<PriorityQueue>(edges_lists, 1)};
 }
 
-
-pair<EDGES_LISTS, int> GenTestCycleGraph() {
-    srand(2);
-    int count_vertex = 4;
+test_tuple GenTestCycleGraph(int count_vertex) {
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
     for (int i = 1; i < count_vertex; ++i) {
-        edges_lists[i].push_back({i + 1, GetRandomNumber(1, 15000)});
+        edges_lists[i].push_back({i + 1, GetRandomNum(1, kMaxWeight)});
     }
-    edges_lists[count_vertex].push_back({1, GetRandomNumber(1, 15000)});
-    return {edges_lists, 3};
+    edges_lists[count_vertex].push_back({1, GetRandomNum(1, kMaxWeight)});
+
+    auto answers = vector<int>(count_vertex + 1, 0);
+    for (int i = 2; i <= count_vertex; ++i) {
+        answers[i] = answers[i - 1] + edges_lists[i - 1][0].second;
+    }
+    return {edges_lists, 1, answers};
 }
 
-
-pair<EDGES_LISTS, int> GenTestTwoComponentsGraph() {
-    srand(3);
-    int count_vertex = 1e5 * 2, count_edges = 1e5 * 3;
+test_tuple GenTestTwoComponentsGraph(int count_vertex) {
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
-    for (int i = 1; i <= count_edges / 2; ++i) {
-        edges_lists[GetRandomNumber(1, count_vertex / 2)].
-                push_back({GetRandomNumber(1, count_vertex / 2), GetRandomNumber(1, 15000)});
+    for (int i = 1; i < count_vertex / 2; ++i) {
+        edges_lists[i].push_back({i + 1, GetRandomNum(1, kMaxWeight)});
     }
-    for (int i = 1; i <= count_edges / 2; ++i) {
-        edges_lists[GetRandomNumber(count_vertex / 2 + 1, count_vertex)].
-                push_back({GetRandomNumber(count_vertex / 2 + 1, count_vertex), GetRandomNumber(1, 15000)});
+    edges_lists[count_vertex / 2].push_back({1, GetRandomNum(1, kMaxWeight)});
+
+    for (int i = count_vertex / 2 + 1; i <= count_vertex ; ++i) {
+        edges_lists[i].push_back({i + 1, GetRandomNum(1, kMaxWeight)});
     }
-    return {edges_lists, 1};
+    edges_lists[count_vertex].push_back({count_vertex / 2 + 1, GetRandomNum(1, kMaxWeight)});
+
+    auto answers = vector<int>(count_vertex + 1, -1);
+    answers[1] = 0;
+    for (int i = 2; i <= count_vertex / 2; ++i) {
+        answers[i] = answers[i - 1] + edges_lists[i - 1][0].second;
+    }
+    return {edges_lists, 1, answers};
 }
 
-pair<EDGES_LISTS, int> GenTestLineGraph() {
-    srand(4);
-    int count_vertex = 1e5 * 5;
+test_tuple GenTestLineGraph(int count_vertex) {
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
     for (int i = 1; i < count_vertex; ++i) {
-        edges_lists[i].push_back({i + 1, GetRandomNumber(1, 1000)});
+        edges_lists[i].push_back({i + 1, GetRandomNum(1, kMaxWeight)});
     }
-    return {edges_lists, 1};
+    auto answers = vector<int>(count_vertex + 1, 0);
+    for (int i = 2; i < count_vertex; ++i) {
+        answers[i] = answers[i - 1] + edges_lists[i][0].second;
+    }
+
+    return {edges_lists, 1, Dijkstra<PriorityQueue>(edges_lists, 1)};
 }
 
-pair<EDGES_LISTS, int> GenTestTree() {
-    int tree_height = 18;
-    srand(5);
-    int count_vertex = pow(2, tree_height) - 1;
+test_tuple GenTestTree(int count_vertex) {
+    int border = count_vertex / 2;
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
-    for (int i = 1; i <= pow(2, tree_height - 1) - 1; ++i) {
-        edges_lists[i].push_back({i + i, GetRandomNumber(1, 15000)});
-        edges_lists[i].push_back({i + i + 1, GetRandomNumber(1, 15000)});
+
+    for (int i = 1; i <= border; ++i) {
+        edges_lists[i].push_back({i * 2, GetRandomNum(1, kMaxWeight)});
+        edges_lists[i].push_back({i * 2 + 1, GetRandomNum(1, kMaxWeight)});
     }
-    return {edges_lists, 1};
+    auto answers = vector<int>(count_vertex + 1, -1);
+    answers[1] = 0;
+    for (int i = 2; i <= border; ++i) {
+        answers[i] = (i % 2 == 0) ? (answers[i / 2] + edges_lists[i / 2][0].second) : (answers[i / 2] + edges_lists[i / 2][1].second);
+    }
+    return {edges_lists, 1, Dijkstra<PriorityQueue>(edges_lists, 1)};
 }
 
-pair<EDGES_LISTS, int> GenTestIncWeightsGraph() {
-    srand(6);
-    int count_vertex = 1e5, count_edges = 1e5 * 3, w = 1;
+test_tuple GenTestIncWeightsStarGraph(int count_vertex) {
+    int start_vertex = count_vertex / 3, w = 1;
+    vector<int> answers = vector<int>(count_vertex + 1, 0);
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
-    for (int i = 1; i < count_edges; ++i) {
-        edges_lists[GetRandomNumber(1, count_vertex)].push_back({GetRandomNumber(1, count_vertex), w++});
+    for (int i = 1; i <= count_vertex; ++i) {
+        edges_lists[start_vertex].push_back({i, w});
+        answers[i] = w++;
     }
-    return {edges_lists, 1};
+    answers[start_vertex] = 0;
+    return {edges_lists, start_vertex, answers};
 }
 
-pair<EDGES_LISTS, int> GenTestDecWeightsGraph() {
-    srand(6);
-    int count_vertex = 1e6, count_edges = 4, w = count_edges + 1;
+test_tuple GenTestSameWeightsStarGraph(int count_vertex) {
+    int start_vertex = 1;
+    vector<int> answers = vector<int>(count_vertex + 1, 0);
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
-    for (int i = 1; i < count_edges; ++i) {
-        edges_lists[GetRandomNumber(1, count_vertex)].push_back({GetRandomNumber(1, count_vertex), w--});
+    for (int i = 1; i <= count_vertex; ++i) {
+        edges_lists[start_vertex].push_back({i, 1e4});
+        answers[i] = 1e4;
     }
-    return {edges_lists, 1};
-}
-
-pair<EDGES_LISTS, int> GenTestSameWeightsGraph() {
-    srand(7);
-    int count_vertex = 1e5, count_edges = 1e5 * 3;
-    EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
-    for (int i = 1; i < count_edges; ++i) {
-        edges_lists[GetRandomNumber(1, count_vertex)].push_back({GetRandomNumber(1, count_vertex),1e5});
-    }
-    return {edges_lists, 2};
+    answers[start_vertex] = 0;
+    return {edges_lists, start_vertex, answers};
 }

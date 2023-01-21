@@ -2,4 +2,4 @@ insert 6
 insert 5
 decrease_key 4 6
 decrease_key 3 4
-remove_minimum
+get_minimum

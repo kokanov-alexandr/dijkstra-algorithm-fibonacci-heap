@@ -1,6 +1,9 @@
 insert -4
 insert 1212
 insert 534
+get_minimum
 remove_minimum
+get_minimum
 remove_minimum
+get_minimum
 remove_minimum

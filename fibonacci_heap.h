@@ -17,7 +17,6 @@
  * fib_heap->Merge(*fib_heap_2);
 */
 
-
 #include <vector>
 #include <iostream>
 #include <string>
@@ -133,7 +132,7 @@ bool FibonacciHeap<T>::IsEmpty() {
 template <class T>
 void FibonacciHeap<T>::RemoveMinimum() {
     Node<T>* last_min = min_;
-    min_ = RemoveMinimum(min_);
+    min_ = RemoveMinimum    (min_);
     delete last_min;
 }
 

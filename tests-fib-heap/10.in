@@ -4,8 +4,15 @@ insert 78
 insert 100
 insert 12
 insert 432423
+get_minimum
 remove_minimum
+get_minimum
+get_minimum
+get_minimum
 remove_minimum
+get_minimum
 remove_minimum
+get_minimum
 remove_minimum
+get_minimum
 remove_minimum
