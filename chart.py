@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-COUNTER_TESTS = 10
+COUNTER_TESTS = 20
    
 embedded_pq = open("tests-Info/embedded_priority_queue_dij.txt", 'r', encoding="utf-8")
 fib_heap = open("tests-Info/fib_heap_dij.txt", 'r', encoding="utf-8")

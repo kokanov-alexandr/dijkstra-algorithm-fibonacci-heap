@@ -1,0 +1,15 @@
+insert 500
+insert 400
+insert 300
+insert 200
+insert 100
+get_minimum
+remove_minimum
+get_minimum
+remove_minimum
+get_minimum
+remove_minimum
+get_minimum
+remove_minimum
+get_minimum
+remove_minimum

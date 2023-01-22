@@ -1,4 +1,3 @@
 insert 3
-insert 4
-decrease_key 3 4
+insert 3
 get_minimum
