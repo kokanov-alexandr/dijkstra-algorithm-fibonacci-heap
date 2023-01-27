@@ -32,7 +32,7 @@ public:
     int degree;
     bool is_descendant_lost;
 
-    Node(T value);
+    Node(T key);
 };
 
 template <class T>
@@ -53,7 +53,7 @@ public:
 
     void RemoveMinimum();
 
-    void DecreaseKey(Node<T>* n, int value);
+    void DecreaseKey(Node<T>* n, int key);
 
     Node<T>* Find(int key);
 
@@ -68,7 +68,7 @@ private:
 
     void AddChild(Node<T>* parent, Node<T>* child);
 
-    void UnMarkAll(Node<T>* element);
+    void UnMarkMinChild(Node<T>* element);
 
     Node<T>* Consolidate(Node<T>* heap);
 

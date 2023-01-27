@@ -47,8 +47,8 @@ void FibonacciHeap<T>::RemoveMinimum() {
 }
 
 template <class T>
-void FibonacciHeap<T>::DecreaseKey(Node<T>* n, int value) {
-    min_ = DecreaseKey(min_, n, value);
+void FibonacciHeap<T>::DecreaseKey(Node<T>* n, int key) {
+    min_ = DecreaseKey(min_, n, key);
 }
 
 template <class T>
@@ -108,7 +108,7 @@ void FibonacciHeap<T>::AddChild(Node<T>* parent, Node<T>* child) {
 }
 
 template <class T>
-void FibonacciHeap<T>::UnMarkAll(Node<T>* element) {
+void FibonacciHeap<T>::UnMarkMinChild(Node<T>* element) {
     if (element == nullptr) {
         return;
     }
@@ -159,7 +159,7 @@ Node<T>* FibonacciHeap<T>::Consolidate(Node<T>* heap) {
 
 template <class T>
 Node<T>* FibonacciHeap<T>::RemoveMinimum(Node<T>* heap) {
-    UnMarkAll(heap->child);
+    UnMarkMinChild(heap->child);
     if (heap->right == heap) {
         heap = heap->child;
     }
@@ -215,7 +215,7 @@ Node<T>* FibonacciHeap<T>::DecreaseKey(Node<T>* heap, Node<T>* element, int key)
             parent = element->parent;
             element->parent = nullptr;
         }
-        if (parent != nullptr && parent->parent != nullptr) {
+        if (parent != nullptr) {
             parent->is_descendant_lost = true;
         }
         if (element->key < heap->key) {

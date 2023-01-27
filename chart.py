@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-COUNTER_TESTS = 20
+COUNTER_TESTS = 10
    
 embedded_pq = open("tests-Info/embedded_priority_queue_dij.txt", 'r', encoding="utf-8")
 fib_heap = open("tests-Info/fib_heap_dij.txt", 'r', encoding="utf-8")
@@ -17,7 +17,7 @@ for i in range(1, COUNTER_TESTS + 1):
 plt.xscale('log')
 plt.xlabel("Количество рёбер")
 plt.ylabel("Время работы (сек)")
-plt.plot(elems, embedded_pq_t, label='Встроенная приоритетная очередь', color="blue", marker="o")
+plt.plot(elems, embedded_pq_t, label='Встроенная приоритетная очередь', color="blue", marker="o", linestyle = '--')
 plt.plot(elems, fib_heap_t, label='Фибоначчиева куча', color="red", marker="o")
 plt.title("Алгоритм Дейкстры")
 plt.legend()

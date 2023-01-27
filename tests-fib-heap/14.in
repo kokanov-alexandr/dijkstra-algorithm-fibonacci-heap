@@ -1,0 +1,9 @@
+insert 3
+insert 3
+insert 3
+get_minimum
+remove_minimum
+get_minimum
+remove_minimum
+get_minimum
+remove_minimum

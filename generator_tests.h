@@ -11,31 +11,14 @@ int GetRandomNum(int left, int right) {
     return left + rand() % (right - left + 1);
 }
 
-enum GraphType {RANDOM, FULL, CYCLE, TWO_COMPONENTS, LINE, TREE, STAR};
+enum GraphCorrTestType {CYCLE, TWO_COMPONENTS, LINE, TREE, MULTIPLE_EDGES, STAR, LOOPS};
+enum GraphTimeTestType {RANDOM, FULL};
 
-test_tuple GenGraph(GraphType type, int count_vertex) {
+test_tuple GenCorrTestGraph(GraphCorrTestType type, int count_vertex) {
     EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
     auto answers = vector<int>(count_vertex + 1, 0);
     int start_vertex = 1;
     switch (type) {
-        case RANDOM:
-            for (int i = 1; i < pow(count_vertex, 5); ++i) {
-                edges_lists[GetRandomNum(1, count_vertex)].push_back({GetRandomNum(1, count_vertex), GetRandomNum(1, 15000)});
-            }
-            answers = Dijkstra<PriorityQueue>(edges_lists, 1);
-            break;
-
-        case FULL:
-            for (int i = 1; i <= count_vertex; ++i) {
-                for (int j = 1; j <= count_vertex; ++j) {
-                    if (i != j) {
-                        edges_lists[i].push_back({j, GetRandomNum(1, kMaxWeight)});
-                    }
-                }
-            }
-            answers = Dijkstra<PriorityQueue>(edges_lists, 1);
-            break;
-
         case CYCLE:
             for (int i = 1; i < count_vertex; ++i) {
                 edges_lists[i].push_back({i + 1, GetRandomNum(1, kMaxWeight)});
@@ -79,6 +62,29 @@ test_tuple GenGraph(GraphType type, int count_vertex) {
             answers[start_vertex] = 0;
             break;
 
+        case MULTIPLE_EDGES:
+            for (int i = 1; i < count_vertex; ++i) {
+                for (int j = 0; j < 5; ++j) {
+                    edges_lists[i].push_back({i + 1, GetRandomNum(1, kMaxWeight)});
+                }
+            }
+            for (int i = 0; i < 5; ++i) {
+                edges_lists[count_vertex].push_back({1, GetRandomNum(1, kMaxWeight)});
+            }
+            for (int i = 2; i <= count_vertex; ++i) {
+                answers[i] = answers[i - 1] + min_element(edges_lists[i - 1].begin(), edges_lists[i - 1].end())->second;
+            }
+            break;
+
+        case LOOPS:
+            start_vertex = 5;
+            for (int i = 1; i <= count_vertex; ++i) {
+                edges_lists[i].push_back({i, GetRandomNum(1, kMaxWeight)});
+            }
+            answers = vector<int>(count_vertex + 1, -1);
+            answers[start_vertex] = 0;
+            break;
+
         case TREE:
             int border = count_vertex / 2 - 1;
             answers[start_vertex] = 0;
@@ -97,6 +103,33 @@ test_tuple GenGraph(GraphType type, int count_vertex) {
                 answers[border * 2 + 1] = answers[border] + edges_lists[border][0].second;
             }
             break;
+
     }
     return {edges_lists, start_vertex, answers};
+}
+
+
+
+pair<EDGES_LISTS, int> GenTimeTestGraph(GraphTimeTestType type, int count_vertex) {
+    EDGES_LISTS edges_lists(count_vertex + 1, vector<pair<int, int>>());
+    int start_vertex = 1;
+
+    switch (type) {
+        case RANDOM:
+            for (int i = 1; i < count_vertex * 4; ++i) {
+                edges_lists[GetRandomNum(1, count_vertex)].push_back({GetRandomNum(1, count_vertex), GetRandomNum(1, 15000)});
+            }
+            break;
+
+        case FULL:
+            for (int i = 1; i <= count_vertex; ++i) {
+                for (int j = 1; j <= count_vertex; ++j) {
+                    if (i != j) {
+                        edges_lists[i].push_back({j, GetRandomNum(1, kMaxWeight)});
+                    }
+                }
+            }
+            break;
+    }
+    return {edges_lists, start_vertex};
 }

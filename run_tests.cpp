@@ -12,11 +12,11 @@ using namespace std;
 using namespace std::chrono;
 
 const int kMillion = 1e6;
-const int kCountMadeFibHeapTests = 13;
+const int kCountMadeFibHeapTests = 15;
 const int kCountSawFibHeapTests = 5;
 const int kCountHillFibHeapTests = 5;
-const int kCountMadeCorrectnessDijTests = 23;
-const int kCountGenCorrectnessDijTests = 7;
+const int kCountMadeCorrectnessDijTests = 24;
+const int kCountGenCorrectnessDijTests = 6;
 const int kCountTimeComparisonTests = 10;
 int CorrectTests = 0;
 int FailedTests = 0;
@@ -33,16 +33,10 @@ bool CheckAnswer(const vector<int> &our_answers, const vector<int> &right_answer
 
 void PrintTestResult(bool is_test_correct) {
     cout << "Test " << TestNumber << ": ";
-
-    if (is_test_correct) {
-        CorrectTests++;
-        cout << "ok. " << endl;
-    }
-    else {
-        FailedTests++;
-        cout << "error." << endl;
-    }
+    cout << (is_test_correct ? "ok." : "error.") << endl;
+    is_test_correct ? CorrectTests++ : FailedTests++;
 }
+
 
 bool SawTest(int t, int k) {
     FibonacciHeap<int> fh;
@@ -54,6 +48,8 @@ bool SawTest(int t, int k) {
             pq.Insert(elem);
         }
         int a = fh.GetMinimum(), b = pq.GetMinimum();
+        fh.RemoveMinimum();
+        pq.RemoveMinimum();
         if (a != b) {
             return false;
         }
@@ -74,6 +70,8 @@ bool HillTestInt(int n) {
         if (a != b) {
             return false;
         }
+        fh.RemoveMinimum();
+        pq.RemoveMinimum();
     }
     return true;
 }
@@ -82,7 +80,7 @@ bool HillTestInt(int n) {
  * Формат тестов
  *
  * Тесты с фпайлов:
- * insert a b - вставить элемент со значением a и ключом b
+ * insert a - вставить элемент с ключом a
  *
  * remove_minimum -удалить минимум
  * (гарантируется, что куча не пустая)
@@ -194,15 +192,14 @@ void RunDijkstraTests() {
 
         bool is_test_correct = CheckAnswer(distance, answers);
         PrintTestResult(is_test_correct);
-
     }
 
     cout << "Big tests:\n";
-    int graph_type = RANDOM;
-    for (TestNumber = 1, graph_type; TestNumber <= kCountGenCorrectnessDijTests, graph_type <= STAR; ++TestNumber, ++graph_type) {
-        switch (TestNumber - 1) {
-            case FULL:
-                count_vertex = 1e3 * 5;
+    int graph_type = CYCLE;
+    for (TestNumber = 1; graph_type <= LOOPS; ++TestNumber, ++graph_type) {
+        switch (graph_type) {
+            case MULTIPLE_EDGES:
+                count_vertex = 1e5;
                 break;
             case TREE:
                 count_vertex = 1e5;
@@ -210,7 +207,7 @@ void RunDijkstraTests() {
             default:
                 count_vertex = 1e6;
         }
-        auto test = GenGraph(static_cast<GraphType>(graph_type), count_vertex);
+        auto test = GenCorrTestGraph(static_cast<GraphCorrTestType>(graph_type), count_vertex);
         auto start = high_resolution_clock::now();
         auto distance = Dijkstra<FibonacciHeap>(get<0>(test), get<1>(test));
         auto stop = high_resolution_clock::now();
@@ -243,22 +240,22 @@ void TimeComparison() {
 
     cout << "Time comparison tests:" << endl;
 
-    int count_iteration = 40;
-    for (TestNumber = 1; TestNumber <= kCountTimeComparisonTests * 2; ++TestNumber) {
+    int count_iteration = 10;
+    for (TestNumber = 1; TestNumber <= kCountTimeComparisonTests; ++TestNumber) {
         int count_vertex, count_edges, start_vertex;
         vector<double> fib_heap_operations_time;
         vector<double> embedded_queue_operations_time;
 
-        count_vertex = (int)pow(10, 4) * TestNumber;
-        count_edges = count_vertex;
+        count_vertex = (int)pow(10, 3) * TestNumber;
+        count_edges = count_vertex * (count_vertex - 1);
         counts_vertex_f << count_edges << endl;
 
         double fib_heap_time = 0, priority_queue_time = 0;
 
         for (int iter = 0; iter < count_iteration + 5; ++iter) {
-            auto graph = GenGraph(TREE, count_vertex);
-            edges_lists = get<0>(graph);
-            start_vertex = get<1>(graph);
+            auto graph = GenTimeTestGraph(FULL, count_vertex);
+            edges_lists = graph.first;
+            start_vertex = graph.second;
             fib_heap_time += GetTimeOperation<FibonacciHeap>(edges_lists, start_vertex);
             priority_queue_time += GetTimeOperation<PriorityQueue>(edges_lists, start_vertex);
         }
@@ -285,5 +282,6 @@ void TimeComparison() {
 
 int main() {
     srand(time(nullptr));
+    TimeComparison();
     return 0;
 }

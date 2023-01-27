@@ -43,7 +43,7 @@ vector<int> Dijkstra(EDGES_LISTS &edges_lists, int start_vertex) {
 
     T<pair<int, int> > heap;
     distance[start_vertex] = 0;
-    heap.Insert(make_pair(0, start_vertex));
+    heap.Insert({0, start_vertex});
 
     while (!heap.IsEmpty()) {
         int v = heap.GetMinimum().second;
